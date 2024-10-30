@@ -14,7 +14,7 @@ class Discrete_varaible:
         xl_util = xlsx_util(starting_from)
         self.cv_mv = xl_util.row_col_converter_moved
         self.col_cv = xl_util.col_converter_moved
-
+        #Estadistica descriptiva
         self.values = ds.create_table(self.wb, self.ws, self.data, self.props['title'], self.cv_mv)
         
         if('convenience_size_classes' in self.props):
@@ -24,11 +24,11 @@ class Discrete_varaible:
     
     def frequency_table_small_range(self):
         percentage = self.wb.add_format({'num_format':'0.00%'})
-        self.num_classes = round(self.values['max'])
+        self.num_classes = round(self.values['max'])+1
 
         self.ws.write_row(self.cv_mv(4,5), ['No Clase','F','FA','FR','FRA',])
         #No. Clase
-        self.ws.write_column(self.cv_mv(5,5), self.num_classes_to_list())
+        self.ws.write_column(self.cv_mv(5,5), self.categories())
         #F
         self.ws.write_array_formula(f'{self.cv_mv(5,6)}:{self.cv_mv(self.num_classes+4,6)}', f'=FREQUENCY({self.cv_mv(1,0)}:{self.cv_mv((self.props['end_row']-1),0)}, {self.cv_mv(5,5)}:{self.cv_mv(self.num_classes+4,5)})')
         #FA
@@ -67,6 +67,10 @@ class Discrete_varaible:
 
         bft.create(self.wb, self.ws, self.data, self.num_classes, self.cv_mv, self.col_cv, self.props['end_row'])
 
+    #numero de clase para variable discreta con LI,LS; se suma +1 por que es inclusivo
     def num_classes_to_list(self):
-        column = list(range(1,self.num_classes+1))
-        return column
+        return list(range(1,self.num_classes+1))
+
+    #Categorias para varaible discreta sin LI,LS
+    def categories(self):
+        return list(range(self.values['min'], self.num_classes))

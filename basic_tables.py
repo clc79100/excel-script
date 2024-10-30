@@ -98,8 +98,4 @@ class Basic_Frequency_Table:
         #FRA
         ws.write(cv_mv(5,12),f'={cv_mv(5,11)}', percentage)
         ws.write_column(cv_mv(6,12), xlsx_util.loop_on_column(f'={col_cv(11)}#+{col_cv(12)}#', 7, (num_classes-1),6), percentage)
-
-        
-
-
         

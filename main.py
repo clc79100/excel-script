@@ -39,7 +39,7 @@ def assign_var_to_column(columns):
             var_type = var_type[0]
         col['var_type'] = var_type.lower()
 
-def assign_var_fun(wb, columns, c_list, d_list, q_list):
+def assign_var_to_fun(wb, columns, c_list, d_list, q_list):
     for col in columns:
         match(col['var_type']):
             case 'c':
@@ -71,38 +71,42 @@ def loop_on_varaible(wb, c_list, d_list, q_list):
         Qualitative_Variable(wb, ws_qualitative_var, col, starting_from=i)
         i+=17
         
-
-if os.path.exists('salida.xlsx'):
-    os.remove('salida.xlsx')
-else:
-    print('Archivo no encontrado')
-
-
-
+##############################################Inicio de programa
 columns = []
 c_list, d_list, q_list = [],[],[]
 
-external_wb =  load_workbook('IA_original.xlsx')
-i=1
-for sheet in external_wb:
-    print(f'{i}. {sheet.title}')
-    i+=1
 
-ws_index=int(input('Ingrese num de hoja: '))
+external_wb_path = input('Ingresa Nombre de archivo con .xlsx: ')
 
-table_end = input('Ingrese fin de tabla: ').upper()
+if not os.path.exists(external_wb_path):
+    print('Archivo no Encontrado')
+else:
+    external_wb =  load_workbook(external_wb_path)
 
-external_ws = external_wb.worksheets[ws_index-1]
+    if os.path.exists('salida.xlsx'):
+        os.remove('salida.xlsx')
+
+    #Imprime la lista de hojas del excel
+    i=1
+    for sheet in external_wb:
+        print(f'{i}. {sheet.title}')
+        i+=1
+    ws_index=int(input('Ingrese num de hoja: '))
+    table_end = input('Ingrese fin de tabla: ').upper()
+
+    
+    external_ws = external_wb.worksheets[ws_index-1]
+
+    #Se extrae los datos del excel y se guardan en una lista, cada item tiene estrucutura de mapa
+    divide_by_columns(table_end, external_ws, columns)
+    #Se le pregunta al usuario que tipo de variable es cada columna
+    assign_var_to_column(columns)
 
 
-divide_by_columns(table_end, external_ws, columns)
+    new_workbook = xlsxwriter.Workbook('salida.xlsx')
+    #Se asigna el tipo de variable a cada columna en un map
+    assign_var_to_fun(new_workbook, columns, c_list, d_list, q_list)
+    #Se itera en variable/columna para ejecutar su respectiva funcion(se escribe en el excel)
+    loop_on_varaible(new_workbook, c_list, d_list, q_list)
 
-assign_var_to_column(columns)
-
-new_workbook = xlsxwriter.Workbook('salida.xlsx')
-
-assign_var_fun(new_workbook, columns, c_list, d_list, q_list)
-
-loop_on_varaible(new_workbook, c_list, d_list, q_list)
-
-new_workbook.close()
+    new_workbook.close()
